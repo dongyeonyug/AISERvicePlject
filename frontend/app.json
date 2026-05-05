@@ -26,6 +26,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "51831a91-eb13-4f57-917f-b6033492000b"
+      }
+    },
+    "owner": "yugdongyeon",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/51831a91-eb13-4f57-917f-b6033492000b"
     }
   }
 }
