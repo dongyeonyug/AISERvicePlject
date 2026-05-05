@@ -79,6 +79,7 @@ aiProtect/
 ### 필수 조건
 - Node.js 18 이상
 - Expo CLI (`npm install -g expo-cli`)
+- Expo-speech(`npx expo install expo-speech`)
 - Expo Go 앱 (iOS / Android)
 - Gemini API 키 — [Google AI Studio](https://aistudio.google.com) 에서 무료 발급
 
