@@ -7,7 +7,7 @@ const getBaseURL = () => {
     const host = hostUri.split(':')[0];
     return `http://${host}:3000`;       // 개발 시 로컬
   }
-  return 'https://aac-backend.onrender.com'; // 배포 후 Render URL로 교체
+  return 'https://aiserviceplject.onrender.com'; // 배포 후 Render URL로 교체
 };
 
 const api = axios.create({
