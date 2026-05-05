@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Speech from 'expo-speech'; // 1. TTS 라이브러리 추가
 import WordCard from '../components/WordCard';
 import AIBox from '../components/AIBox';
 import SentenceBar from '../components/SentenceBar';
@@ -9,7 +10,7 @@ import { getWords, composeSentence, trackWordClick } from '../api/client';
 const CATEGORIES = ['전체', '감정', '장소', '행동', '음식', '사람', '자연'];
 
 const getTimeLabel = (hour) => {
-  if (hour >= 6 && hour < 9)  return '오전 · 학교 가는 시간';
+  if (hour >= 6 && hour < 9)   return '오전 · 학교 가는 시간';
   if (hour >= 9 && hour < 12) return '오전 · 학교 있는 날';
   if (hour >= 12 && hour < 14) return '점심 시간';
   if (hour >= 14 && hour < 18) return '오후 · 쉬는 시간';
@@ -71,9 +72,23 @@ export default function HomeScreen() {
     loadWords(cat);
   };
 
+  // 2. handleSpeak 수정: AI 완성 문장을 TTS로 읽기
   const handleSpeak = () => {
     if (selectedWords.length === 0) return;
-    Alert.alert('말하기', selectedWords.map(w => w.label).join(' '));
+
+    if (aiLoading) {
+      Alert.alert('알림', 'AI가 문장을 만드는 중입니다.');
+      return;
+    }
+
+    // AI 문장이 있으면 읽고, 없으면 선택된 단어들을 나열해서 읽음
+    const textToRead = aiSentence || selectedWords.map(w => w.label).join(' ');
+
+    Speech.speak(textToRead, {
+      language: 'ko-KR',
+      pitch: 1.0,
+      rate: 0.85, // 아동이 듣기 적당한 속도
+    });
   };
 
   const handleWordRemove = (word) => {
