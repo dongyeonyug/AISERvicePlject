@@ -25,6 +25,7 @@ export default function HomeScreen() {
   const [aiSentence, setAiSentence] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [sentenceStyle, setSentenceStyle] = useState('simple'); // 'simple' or 'detailed'
   const currentHour = new Date().getHours();
 
   const loadWords = useCallback(async (category) => {
@@ -51,12 +52,12 @@ export default function HomeScreen() {
     }
     let cancelled = false;
     setAiLoading(true);
-    composeSentence(selectedWords.map(w => w.label), selectedWords)
+    composeSentence(selectedWords.map(w => w.label), selectedWords, sentenceStyle)
       .then(data  => { if (!cancelled) setAiSentence(data.sentence); })
       .catch(()   => { if (!cancelled) setAiSentence('문장을 만들 수 없어요.'); })
       .finally(()  => { if (!cancelled) setAiLoading(false); });
     return () => { cancelled = true; };
-  }, [selectedWords]);
+  }, [selectedWords, sentenceStyle]);
 
   const toggleWord = (item) => {
     const isSelected = selectedWords.some(w => w.id === item.id);
@@ -111,6 +112,22 @@ export default function HomeScreen() {
           onSpeak={handleSpeak}
           onWordRemove={handleWordRemove}
         />
+
+    {/* ── 문장 스타일 선택 ── */}
+    <View style={styles.styleToggleContainer}>
+      <Pressable 
+        style={[styles.styleBtn, sentenceStyle === 'simple' && styles.styleBtnActive]}
+        onPress={() => setSentenceStyle('simple')}
+      >
+        <Text style={[styles.styleBtnText, sentenceStyle === 'simple' && styles.styleBtnTextActive]}>간결하게</Text>
+      </Pressable>
+      <Pressable 
+        style={[styles.styleBtn, sentenceStyle === 'detailed' && styles.styleBtnActive]}
+        onPress={() => setSentenceStyle('detailed')}
+      >
+        <Text style={[styles.styleBtnText, sentenceStyle === 'detailed' && styles.styleBtnTextActive]}>상세하게</Text>
+      </Pressable>
+    </View>
 
         {/* ── AI 박스 ── */}
         <AIBox sentence={aiSentence} loading={aiLoading} />
@@ -208,4 +225,16 @@ const styles = StyleSheet.create({
   tabTextActive: { color: '#fff', fontWeight: '500' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 8, paddingBottom: 24 },
   gridCell: { width: '25%', padding: 4 },
+  styleToggleContainer: { flexDirection: 'row', paddingHorizontal: 12, marginTop: 12, gap: 8, justifyContent: 'flex-start' },
+  styleBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E0D9FF'
+  },
+  styleBtnActive: { backgroundColor: '#6B5CE7', borderColor: '#6B5CE7' },
+  styleBtnText: { fontSize: 11, color: '#888' },
+  styleBtnTextActive: { color: '#fff', fontWeight: '500' },
 });

@@ -6,7 +6,7 @@ const { composeSentence, composeEmotion } = require('../services/gemini');
 
 // POST /api/sentence/compose
 router.post('/compose', async (req, res) => {
-  const { words, wordObjects } = req.body;
+  const { words, wordObjects, style } = req.body;
   if (!Array.isArray(words) || words.length === 0) {
     return res.status(400).json({ error: '단어 배열이 필요합니다.' });
   }
@@ -14,7 +14,7 @@ router.post('/compose', async (req, res) => {
   if (Array.isArray(wordObjects) && wordObjects.length > 0) {
     wordUsage.record(wordObjects);
   }
-  const sentence = await composeSentence(words);
+  const sentence = await composeSentence(words, style);
   res.json({ sentence });
 });
 
