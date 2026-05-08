@@ -49,15 +49,25 @@ function buildLocalSentence(words) {
   return `${words.join(' ')} ${ending}`;
 }
 
-async function composeSentence(words) {
+async function composeSentence(words, style = 'simple') {
+  const isDetailed = style === 'detailed';
+
+  const systemPrompt = isDetailed
+    ? '당신은 언어 장애가 있는 사용자의 의사소통을 돕는 AAC(보완대체의사소통) 인공지능입니다. 사용자가 선택한 단어들을 바탕으로, 상황이나 감정, 이유 등을 조금 더 살을 붙여 구체적이고 부드러운 한국어 문장(구어체, 해요체) 1개를 만들어주세요. 부연 설명 없이 오직 완성된 문장 하나만 출력해야 하며, 너무 길지 않은 자연스러운 대화체로 작성해주세요.'
+    : '당신은 AAC(보완대체의사소통) 인공지능입니다. 사용자가 선택한 단어들을 반드시 모두 사용하여, 최소한의 길이로 극단적으로 짧고 간결한 한국어 문장(해요체) 1개만 만들어주세요. 절대 새로운 의미나 부가적인 단어를 덧붙이지 말고, 딱 필요한 조사와 어미만 사용하여 핵심만 전달해야 합니다. 부연 설명 없이 오직 완성된 문장 하나만 출력해야 합니다.';
+
+  const userPrompt = isDetailed
+    ? `선택한 단어들: ${words.join(', ')}\n이 단어들을 바탕으로 내 의사를 자세하고 부드럽게 표현하는 대화 문장을 만들어줘.`
+    : `단어: ${words.join(', ')}\n조건: 다른 말은 덧붙이지 말고 최대한 짧게 요점만 말해.`;
+
   const messages = [
     {
       role: 'system',
-      content: '당신은 한국어 문장 작가입니다. 주어진 단어를 반드시 모두 포함한 간결하고 담백한 문장 하나를 만듭니다.',
+      content: systemPrompt,
     },
     {
       role: 'user',
-      content: `단어 리스트: ${words.join(', ')}`,
+      content: userPrompt,
     },
   ];
   const result = await callWithFallback(messages);
@@ -70,11 +80,11 @@ async function composeEmotion(emotion) {
   const messages = [
     {
       role: 'system',
-      content: '당신은 한국어 문장 작가입니다. 부연 설명 없이 문장만 출력하세요.',
+      content: '당신은 언어 장애가 있는 사용자의 의사소통을 돕는 AAC(보완대체의사소통) 인공지능입니다. 일상적인 대화에서 자연스럽게 감정을 표현하는 짧고 명확한 구어체 문장을 만들어주세요. 부연 설명 없이 문장만 출력하세요.',
     },
     {
       role: 'user',
-      content: `감정 상태가 '${emotion}'인 사람이 할 법한 자연스러운 한국어 문장 1개만 만들어줘.`,
+      content: `지금 내 감정 상태는 '${emotion}'입니다. 이 감정을 주변 사람에게 표현하는 가장 자연스러운 한국어 문장 1개만 만들어줘.`,
     },
   ];
   const result = await callWithFallback(messages);

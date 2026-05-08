@@ -30,6 +30,7 @@ export default function SentenceScreen() {
   const [aiLoading, setAiLoading] = useState(false);
   const [recentSentences, setRecentSentences] = useState([]);
   const [frequentWords, setFrequentWords] = useState(DEFAULT_FREQUENT);
+  const [sentenceStyle, setSentenceStyle] = useState('simple');
 
   const refreshFrequent = useCallback(() => {
     getFrequentWords(DISPLAY_LIMIT)
@@ -59,7 +60,7 @@ export default function SentenceScreen() {
     }
     let cancelled = false;
     setAiLoading(true);
-    composeSentence(selectedWords.map(w => w.label), selectedWords)
+    composeSentence(selectedWords.map(w => w.label), selectedWords, sentenceStyle)
       .then(data => {
         if (!cancelled) {
           setAiSentence(data.sentence);
@@ -69,7 +70,7 @@ export default function SentenceScreen() {
       .catch(() => { if (!cancelled) setAiSentence('문장을 만들 수 없어요.'); })
       .finally(() => { if (!cancelled) setAiLoading(false); });
     return () => { cancelled = true; };
-  }, [selectedWords]);
+  }, [selectedWords, sentenceStyle]);
 
   const toggleWord = (item) => {
     setSelectedWords(prev => {
@@ -95,7 +96,7 @@ export default function SentenceScreen() {
   const handleRetry = () => {
     if (selectedWords.length === 0) return;
     setAiLoading(true);
-    composeSentence(selectedWords.map(w => w.label), selectedWords)
+    composeSentence(selectedWords.map(w => w.label), selectedWords, sentenceStyle)
       .then(data => {
         setAiSentence(data.sentence);
         refreshFrequent();
@@ -133,6 +134,22 @@ export default function SentenceScreen() {
             <Text style={styles.wordCount}>{selectedWords.length}개 선택됨</Text>
           </View>
         </View>
+
+    {/* ── 문장 스타일 선택 ── */}
+    <View style={styles.styleToggleContainer}>
+      <Pressable 
+        style={[styles.styleBtn, sentenceStyle === 'simple' && styles.styleBtnActive]}
+        onPress={() => setSentenceStyle('simple')}
+      >
+        <Text style={[styles.styleBtnText, sentenceStyle === 'simple' && styles.styleBtnTextActive]}>간결하게</Text>
+      </Pressable>
+      <Pressable 
+        style={[styles.styleBtn, sentenceStyle === 'detailed' && styles.styleBtnActive]}
+        onPress={() => setSentenceStyle('detailed')}
+      >
+        <Text style={[styles.styleBtnText, sentenceStyle === 'detailed' && styles.styleBtnTextActive]}>상세하게</Text>
+      </Pressable>
+    </View>
 
         {/* ── AI 박스 ── */}
         <AIBox sentence={aiSentence} loading={aiLoading} />
@@ -264,4 +281,16 @@ const styles = StyleSheet.create({
   },
   recentText: { fontSize: 12, color: '#333', flex: 1 },
   recentDate: { fontSize: 11, color: '#AAABE4', marginLeft: 8, flexShrink: 0 },
+  styleToggleContainer: { flexDirection: 'row', paddingHorizontal: 12, gap: 8, justifyContent: 'flex-start', marginTop: 4 },
+  styleBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E0D9FF'
+  },
+  styleBtnActive: { backgroundColor: '#6B5CE7', borderColor: '#6B5CE7' },
+  styleBtnText: { fontSize: 11, color: '#888' },
+  styleBtnTextActive: { color: '#fff', fontWeight: '500' },
 });
